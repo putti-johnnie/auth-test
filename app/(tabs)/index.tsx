@@ -2,6 +2,9 @@ import { useAppKit } from '@reown/appkit-wagmi-react-native';
 import { useEffect } from 'react';
 import { Platform, Button, SafeAreaView, ScrollView, StatusBar, View, Text } from 'react-native';
 import { useAccount, useDisconnect } from 'wagmi';
+import { ConnectionController, AccountController } from '@reown/appkit-core-react-native';
+import { useSignMessage } from 'wagmi'
+import { AppKitButton } from '@reown/appkit-wagmi-react-native';
 
 export default function HomeScreen() {
 
@@ -9,11 +12,17 @@ export default function HomeScreen() {
   const { address } = useAccount();
   const { disconnect } = useDisconnect();
 
+  const { signMessageAsync } = useSignMessage()
+
   function connectWallet() {
     open();
   }
 
-  function disconnectWallet() {
+  async function signMessage() {
+    await signMessageAsync({ message: 'test' });
+  }
+
+  async function disconnectWallet() {
     // issue 2: disconnect not working properly
     // step to reproduce:
     // - connect to wallet
@@ -21,7 +30,9 @@ export default function HomeScreen() {
     // - close the above wallet connected view
     // - press "Disconnect Wallet" button, which call `disconnect()`
     // - press "Connect Wallet" button again, still see wallet is connected
-    disconnect();
+    // await ConnectionController.disconnect();
+    // AccountController.resetAccount();
+    await disconnect();
   }
 
   useEffect(() => {
@@ -32,8 +43,13 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container}>
+
         <View style={styles.button}>
           <Button title="Connect Wallet" onPress={connectWallet} />
+        </View>
+
+        <View style={styles.button}>
+          <Button title="Sign Message" onPress={signMessage} />
         </View>
 
         <View style={styles.button}>
